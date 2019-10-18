@@ -24,21 +24,39 @@
 				return rowObject
 			})
 			return parsedRows
+		}
 
+		function groupBy(array, key) {
+			return array.reduce((acc, cur) => {
+				if (acc[cur[key]]) {
+					acc[cur[key]].push(cur)
+					return acc
+				} else {
+					return {...acc, [cur[key]]: [cur] }
+				}
+			}, {})
 		}
 
 		const list = document.getElementById("upload-event-list")
 		const fileUpload = document.getElementById("file-upload")
 
-		fileUploa.addEventListener("change", e => {
+		let orders = null
+
+		fileUpload.addEventListener("change", e => {
 			e.target.files[0].text().then(result => {
 				const parsedRows = parseCsv(result);
 				window.rows = parsedRows
 				e.target.style.display = "none"
 
-				parsedRows.forEach(value => {
+				orders = groupBy(parsedRows, "Bestelnummer")
+
+				Object.entries(orders).forEach(([key, values]) => {
 					const row = document.createElement("li")
-					row.innerText = JSON.stringify(value)
+					
+					row.innerHTML = `
+						<p>Bestelnummer: ${key}, totaal participanten: ${values.length}</p>
+						<button id="${key}">export bestelling naar NAVB formaat</button
+					`
 					list.appendChild(row)
 				})
 			})
