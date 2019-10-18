@@ -8,14 +8,14 @@
 	<input type="file" id="file-upload" />
 	<ul id="upload-event-list"></ul>
 	<script>
-		function parseCsv(result) {
+		function parseCsv(result, delimiter = ",") {
 			window.result = result
 			const [heading, ...rows] = result.replace(/\"/g, "").split("\n")
 
-			const parsedHeading = heading.split(",")
+			const parsedHeading = heading.split(delimiter)
 			const parsedData = []
 
-			const parsedRows = rows.map(row => row.split(",")).map(row => {
+			const parsedRows = rows.map(row => row.split(delimiter)).map(row => {
 				const rowObject = {};
 				parsedHeading.forEach((heading, index) => {
 					rowObject[heading] = row[index]
@@ -24,6 +24,11 @@
 				return rowObject
 			})
 			return parsedRows
+		}
+
+		function generateCsv(array, delimiter = ";") {
+			const heading = Object.keys(array[0]).join(delimiter)
+			return [heading].concat(array.map(row => Object.values(row).join(delimiter))).join("\n")
 		}
 
 		function groupBy(array, key) {
@@ -42,6 +47,31 @@
 
 		let orders = null
 
+
+		function exportToNavb(data) {
+			const csv = generateCsv(data.map(order => ({
+				"tussenvoegsel": order["Naam (Tussenvoegsel)"],
+				"achternaam": order["Naam (Achternaam)"],
+				"voornaam": order["Naam (Voornaam)"],
+				"geboortedatum (dd-mm-jjjj)": order["Geboortedatum (dd-mm-jjjj)"],
+				"postcode": order["Adres (Postcode)"],
+			//	"straat",
+			//	"huisnummer",
+			//	"huisnummer toevoeging",
+				"stad": order["Adres (Stad)"],
+				"E-mailadres": order["E-mailadres"]
+			})))
+			const element = document.createElement('a');
+    			element.setAttribute('href', 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv));
+    			element.setAttribute('download', "navbexport.csv");
+    			element.style.display = 'none';
+    			document.body.appendChild(element);
+
+    			element.click();
+
+    			document.body.removeChild(element);
+		}
+
 		fileUpload.addEventListener("change", e => {
 			e.target.files[0].text().then(result => {
 				const parsedRows = parseCsv(result);
@@ -58,6 +88,7 @@
 						<button id="${key}">export bestelling naar NAVB formaat</button
 					`
 					list.appendChild(row)
+					document.getElementById(key).addEventListener("click", value => exportToNavb(orders[value.target.id]))
 				})
 			})
 		})
