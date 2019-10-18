@@ -1,0 +1,47 @@
+<html>
+
+<head>
+	<title>Navb Exporter</title>
+	<meta charset="UTF-8">
+</head>
+<body>
+	<input type="file" id="file-upload" />
+	<ul id="upload-event-list"></ul>
+	<script>
+		function parseCsv(result) {
+			window.result = result
+			const [heading, ...rows] = result.replace(/\"/g, "").split("\n")
+
+			const parsedHeading = heading.split(",")
+			const parsedData = []
+
+			const parsedRows = rows.map(row => row.split(",")).map(row => {
+				const rowObject = {};
+				parsedHeading.forEach((heading, index) => {
+					rowObject[heading] = row[index]
+				})
+
+				return rowObject
+			})
+			return parsedRows
+
+		}
+
+		const list = document.getElementById("upload-event-list")
+		const fileUpload = document.getElementById("file-upload")
+
+		fileUploa.addEventListener("change", e => {
+			e.target.files[0].text().then(result => {
+				const parsedRows = parseCsv(result);
+				window.rows = parsedRows
+				e.target.style.display = "none"
+
+				parsedRows.forEach(value => {
+					const row = document.createElement("li")
+					row.innerText = JSON.stringify(value)
+					list.appendChild(row)
+				})
+			})
+		})
+	</script>
+</body>
