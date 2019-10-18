@@ -45,7 +45,7 @@
             <tr>
                 <th>Bestelling</th>
                 <th>Totaal</th>
-                <th></th>
+                <th class="has-text-right">Actie</th>
             </tr>
             </thead>
             <tbody id="upload-event-list">
@@ -75,56 +75,48 @@
         })
     }
 
-    function generateCsv(array, delimiter = ";") {
-        const heading = Object.keys(array[0]).join(delimiter);
-        return [heading].concat(array.map(row => Object.values(row).join(delimiter))).join("\n")
-    }
+    const generateCsv = (array, delimiter = ";") =>
+        [Object.keys(array[0]).join(delimiter)].concat(array.map(row => Object.values(row).join(delimiter))).join("\n");
 
-    function groupBy(array, key) {
-        return array.filter(item => item[key])
-            .reduce((acc, cur) => {
-                if (acc[cur[key]]) {
-                    acc[cur[key]].push(cur);
-                    return acc
-                }
-                return {...acc, [cur[key]]: [cur]}
-            }, {})
-    }
-
-    function capitalize(input) {
-        return !input || input.length < 1
-            ? input
-            : input[0].toUpperCase() + input.slice(1).toLowerCase();
-    }
-
-    function exportToNavb(data) {
-        return generateCsv(data.map(order => {
-            const formattedDate = new Intl.DateTimeFormat("nl", {
-                month: "2-digit",
-                day: "2-digit",
-                year: "numeric"
-            }).format(new Date(order["Geboortedatum (dd-mm-jjjj)"]));
-            const addressLine = order["Adres (Straat + huisnummer)"].split(" ");
-            const houseNumber = addressLine[addressLine.length - 1];
-            const street = addressLine.slice(0, addressLine.length - 1).join(" ");
-            return {
-                "tussenvoegsel": order["Naam (Tussenvoegsel)"],
-                "achternaam": capitalize(order["Naam (Achternaam)"]),
-                "voornaam": capitalize(order["Naam (Voornaam)"]),
-                "geboortedatum (dd-mm-jjjj)": formattedDate,
-                "postcode": order["Adres (Postcode)"].toUpperCase(),
-                "straat": street,
-                "huisnummer": houseNumber,
-                "huisnummer toevoeging": order["Adres (Huisnummer toevoeging)"],
-                "stad": capitalize(order["Adres (Stad)"]),
-                "E-mailadres": order["E-mailadres"]
+    const groupBy = (array, key) => array.filter(item => item[key])
+        .reduce((acc, cur) => {
+            if (acc[cur[key]]) {
+                acc[cur[key]].push(cur);
+                return acc
             }
-        }));
-    }
+            return {...acc, [cur[key]]: [cur]}
+        }, {});
 
-    function downloadFile(blob, filename = "navbexport.csv") {
+    const capitalize = input => !input || input.length < 1
+        ? input
+        : input[0].toUpperCase() + input.slice(1).toLowerCase();
+
+    const exportToNavb = data => generateCsv(data.map(order => {
+        const formattedDate = new Intl.DateTimeFormat("nl", {
+            month: "2-digit",
+            day: "2-digit",
+            year: "numeric"
+        }).format(new Date(order["Geboortedatum (dd-mm-jjjj)"]));
+        const addressLine = order["Adres (Straat + huisnummer)"].split(" ");
+        const houseNumber = addressLine[addressLine.length - 1];
+        const street = addressLine.slice(0, addressLine.length - 1).join(" ");
+        return {
+            "tussenvoegsel": order["Naam (Tussenvoegsel)"],
+            "achternaam": capitalize(order["Naam (Achternaam)"]),
+            "voornaam": capitalize(order["Naam (Voornaam)"]),
+            "geboortedatum (dd-mm-jjjj)": formattedDate,
+            "postcode": order["Adres (Postcode)"].toUpperCase(),
+            "straat": street,
+            "huisnummer": houseNumber,
+            "huisnummer toevoeging": order["Adres (Huisnummer toevoeging)"],
+            "stad": capitalize(order["Adres (Stad)"]),
+            "E-mailadres": order["E-mailadres"]
+        }
+    }));
+
+    const downloadFile = (blob, filename = "navbexport.csv") => {
         const element = document.createElement('a');
-        element.setAttribute('href', 'data:text/csv;charset=utf-8,' + encodeURIComponent(blob));
+        element.setAttribute('href', `data:text/csv;charset=utf-8,${encodeURIComponent(blob)}`);
         element.setAttribute('download', filename);
         element.style.display = 'none';
         document.body.appendChild(element);
@@ -132,7 +124,7 @@
         element.click();
 
         document.body.removeChild(element);
-    }
+    };
 
     fileUpload.addEventListener("change", e => {
         e.target.files[0].text().then(result => {
