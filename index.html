@@ -23,7 +23,7 @@
         </div>
     </div>
 </nav>
-<div class="container" style="margin-top: 2rem">
+<div class="container" style="margin-top: 2rem; margin-bottom: 5rem;">
     <div id="file-upload-container" style="display: flex; justify-content: center">
         <div class="file">
             <label class="file-label">
@@ -146,7 +146,14 @@
                     row.innerHTML = `
 					<td>${key}</td>
 					<td>${values.length}</td>
-					<td class="has-text-right"><button class="button is-dark" id="${key}">Exporteer</button</td>
+					<td class="has-text-right">
+					    <button class="button is-small is-dark" id="${key}">
+					        <span class="icon is-small">
+                                <i class="fas fa-fingerprint"></i>
+                            </span>
+					        <span>Exporteer</span>
+                        </button
+					</td>
 				`;
                     list.appendChild(row);
                     document.getElementById(key).addEventListener("click", value => {
