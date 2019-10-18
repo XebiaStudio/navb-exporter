@@ -47,20 +47,33 @@
 
 		let orders = null
 
+		function capitalize(input) {
+			if (input && input.length > 0)
+				return input[0].toUpperCase() + input.slice(1, input.length)
+				
+			return input
+		}
+
 
 		function exportToNavb(data) {
-			const csv = generateCsv(data.map(order => ({
-				"tussenvoegsel": order["Naam (Tussenvoegsel)"],
-				"achternaam": order["Naam (Achternaam)"],
-				"voornaam": order["Naam (Voornaam)"],
-				"geboortedatum (dd-mm-jjjj)": order["Geboortedatum (dd-mm-jjjj)"],
-				"postcode": order["Adres (Postcode)"],
-			//	"straat",
-			//	"huisnummer",
-			//	"huisnummer toevoeging",
-				"stad": order["Adres (Stad)"],
-				"E-mailadres": order["E-mailadres"]
-			})))
+			const csv = generateCsv(data.map(order => {
+				const formattedDate = new Intl.DateTimeFormat("nl").format(new Date(order["Geboortedatum (dd-mm-jjjj)"]))
+				const addressLine = order["Adres (Straat + huisnummer)"].split(" ")
+				const houseNumber = addressLine[addressLine.length - 1]
+				const street = addressLine.slice(0, addressLine.length - 1).join(" ")
+				return {
+					"tussenvoegsel": order["Naam (Tussenvoegsel)"],
+					"achternaam": capitalize(order["Naam (Achternaam)"]),
+					"voornaam": capitalize(order["Naam (Voornaam)"]),
+					"geboortedatum (dd-mm-jjjj)": formattedDate,
+					"postcode": order["Adres (Postcode)"].toUpperCase(),
+					"straat": street,
+					"huisnummer": houseNumber,
+					"huisnummer toevoeging": "",
+					"stad": capitalize(order["Adres (Stad)"]),
+					"E-mailadres": order["E-mailadres"]
+				}
+			}))
 			const element = document.createElement('a');
     			element.setAttribute('href', 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv));
     			element.setAttribute('download', "navbexport.csv");
