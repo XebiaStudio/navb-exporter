@@ -92,11 +92,16 @@
         : input[0].toUpperCase() + input.slice(1).toLowerCase();
 
     const exportToNavb = data => generateCsv(data.map(order => {
-        const formattedDate = new Intl.DateTimeFormat("nl", {
-            month: "2-digit",
-            day: "2-digit",
-            year: "numeric"
-        }).format(new Date(order["Geboortedatum (dd-mm-jjjj)"]));
+        let formattedDate = "Invalid date format: " + order["Geboortedatum (dd-mm-jjjj)"];
+        try {
+            formattedDate = new Intl.DateTimeFormat("nl", {
+                month: "2-digit",
+                day: "2-digit",
+                year: "numeric"
+            }).format(new Date(order["Geboortedatum (dd-mm-jjjj)"]));
+        } catch (e) {
+            console.log(e);
+        }
         const addressLine = order["Adres (Straat + huisnummer)"].split(" ");
         const houseNumber = addressLine[addressLine.length - 1];
         const street = addressLine.slice(0, addressLine.length - 1).join(" ");
