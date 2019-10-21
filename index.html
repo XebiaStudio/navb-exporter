@@ -62,7 +62,7 @@
 
     let orders = null;
 
-    function parseCsv(result, delimiter = ",") {
+    const parseCsv = (result, delimiter = ",") => {
         const [heading, ...rows] = result.replace(/"/g, "").split("\n");
         const parsedHeading = heading.split(delimiter);
 
@@ -73,7 +73,7 @@
             });
             return rowObject
         })
-    }
+    };
 
     const generateCsv = (array, delimiter = ";") =>
         [Object.keys(array[0]).join(delimiter)].concat(array.map(row => Object.values(row).join(delimiter))).join("\n");
