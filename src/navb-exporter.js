@@ -6,8 +6,6 @@ const fileUpload = document.getElementById("file-upload");
 const fileUploadContainer = document.getElementById("file-upload-container");
 const evenListContainer = document.getElementById("event-list-container");
 
-let orders = null;
-
 const exportToNavb = data =>
   generateCsv(
     data.map(order => {
@@ -57,13 +55,12 @@ const downloadFile = (blob, filename = "navbexport.csv") => {
 
 fileUpload.addEventListener("change", e => {
   window.e = e;
-  console.log(e);
   fileToText(e.target.files[0]).then(result => {
     const parsedRows = parseCsv(result);
     fileUploadContainer.style.display = "none";
     evenListContainer.style.display = "block";
 
-    orders = groupBy(parsedRows, "Bestelnummer");
+    const orders = groupBy(parsedRows, "Bestelnummer");
 
     Object.entries(orders)
       .sort((a, b) => a[0].localeCompare(b[0]))
