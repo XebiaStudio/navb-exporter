@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.5/css/bulma.min.css"/>
-    <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
+    <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js" type="text/javascript"></script>
 </head>
 <body>
 <nav class="navbar is-black">
@@ -54,115 +54,5 @@
         </table>
     </div>
 </div>
-<script>
-    const list = document.getElementById("upload-event-list");
-    const fileUpload = document.getElementById("file-upload");
-    const fileUploadContainer = document.getElementById("file-upload-container");
-    const evenListContainer = document.getElementById("event-list-container");
-
-    let orders = null;
-
-    const parseCsv = (result, delimiter = ",") => {
-        const [heading, ...rows] = result.replace(/"/g, "").split("\n");
-        const parsedHeading = heading.split(delimiter);
-
-        return rows.map(row => row.split(delimiter)).map(row => {
-            const rowObject = {};
-            parsedHeading.forEach((heading, index) => {
-                rowObject[heading] = row[index]
-            });
-            return rowObject
-        })
-    };
-
-    const generateCsv = (array, delimiter = ";") =>
-        [Object.keys(array[0]).join(delimiter)].concat(array.map(row => Object.values(row).join(delimiter))).join("\n");
-
-    const groupBy = (array, key) => array.filter(item => item[key])
-        .reduce((acc, cur) => {
-            if (acc[cur[key]]) {
-                acc[cur[key]].push(cur);
-                return acc
-            }
-            return {...acc, [cur[key]]: [cur]}
-        }, {});
-
-    const capitalize = input => !input || input.length < 1
-        ? input
-        : input[0].toUpperCase() + input.slice(1).toLowerCase();
-
-    const exportToNavb = data => generateCsv(data.map(order => {
-        let formattedDate = "Invalid date format: " + order["Geboortedatum (dd-mm-jjjj)"];
-        try {
-            formattedDate = new Intl.DateTimeFormat("nl", {
-                month: "2-digit",
-                day: "2-digit",
-                year: "numeric"
-            }).format(new Date(order["Geboortedatum (dd-mm-jjjj)"]));
-        } catch (e) {
-            console.log(e);
-        }
-        const addressLine = order["Adres (Straat + huisnummer)"].split(" ");
-        const houseNumber = addressLine[addressLine.length - 1];
-        const street = addressLine.slice(0, addressLine.length - 1).join(" ");
-        return {
-            "tussenvoegsel": order["Naam (Tussenvoegsel)"],
-            "achternaam": capitalize(order["Naam (Achternaam)"]),
-            "voornaam": capitalize(order["Naam (Voornaam)"]),
-            "geboortedatum (dd-mm-jjjj)": formattedDate,
-            "postcode": order["Adres (Postcode)"].toUpperCase(),
-            "straat": street,
-            "huisnummer": houseNumber,
-            "huisnummer toevoeging": order["Adres (Huisnummer toevoeging)"],
-            "stad": capitalize(order["Adres (Stad)"]),
-            "E-mailadres": order["E-mailadres"]
-        }
-    }));
-
-    const downloadFile = (blob, filename = "navbexport.csv") => {
-        const element = document.createElement('a');
-        element.setAttribute('href', `data:text/csv;charset=utf-8,${encodeURIComponent(blob)}`);
-        element.setAttribute('download', filename);
-        element.style.display = 'none';
-        document.body.appendChild(element);
-
-        element.click();
-
-        document.body.removeChild(element);
-    };
-
-    fileUpload.addEventListener("change", e => {
-        e.target.files[0].text().then(result => {
-            const parsedRows = parseCsv(result);
-            fileUploadContainer.style.display = "none";
-            evenListContainer.style.display = "block";
-
-            orders = groupBy(parsedRows, "Bestelnummer");
-
-            Object.entries(orders)
-                .sort((a, b) => a[0].localeCompare(b[0]))
-                .forEach(([key, values]) => {
-                    const row = document.createElement("tr");
-
-                    row.innerHTML = `
-					<td>${key}</td>
-					<td>${values.length}</td>
-					<td class="has-text-right">
-					    <button class="button is-small is-dark" id="${key}">
-					        <span class="icon is-small" id="${key}">
-                                <i class="fas fa-fingerprint" id="${key}"></i>
-                            </span>
-					        <span id="${key}">Exporteer</span>
-                        </button
-					</td>
-				`;
-                    list.appendChild(row);
-                    document.getElementById(key).addEventListener("click", value => {
-                        const csvExport = exportToNavb(orders[value.target.id]);
-                        downloadFile(csvExport)
-                    })
-                })
-        })
-    })
-</script>
+<script src="/navb-exporter.js" type="module"></script>
 </body>
