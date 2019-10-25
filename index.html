@@ -24,21 +24,23 @@
     </div>
 </nav>
 <div class="container" style="margin-top: 2rem; margin-bottom: 5rem;">
-    <div id="file-upload-container" style="display: flex; justify-content: center">
-        <div class="file">
-            <label class="file-label">
-                <input class="file-input" id="file-upload" type="file" name="resume">
-                <span class="file-cta">
-      <span class="file-icon">
-        <i class="fas fa-upload"></i>
-      </span>
-      <span class="file-label">
-        Kies wordpress csv bestand
-      </span>
-    </span>
-            </label>
+
+    <div class="columns">
+        <div class="column"></div>
+        <div class="column is-one-third" style="display: flex; flex-direction: column; align-items: center;">
+            <div class="file is-boxed" id="dropzone">
+                <label class="file-label">
+                    <input class="file-input" id="file-upload" type="file" name="resume">
+                    <span class="file-cta" id="dropzone-content">
+                        <span class="file-icon"><i class="fas fa-upload"></i></span>
+                        <span class="file-label">Kies of sleep csv bestand</span>
+                    </span>
+                </label>
+            </div>
         </div>
+        <div class="column"></div>
     </div>
+
     <div id="event-list-container" style="margin-top: 2rem;">
         <table class="table is-fullwidth is-striped is-hoverable">
             <thead>
@@ -48,11 +50,10 @@
                 <th class="has-text-right">Actie</th>
             </tr>
             </thead>
-            <tbody id="upload-event-list">
-
-            </tbody>
+            <tbody id="upload-event-list"></tbody>
         </table>
     </div>
+
 </div>
 <script src="/src/navb-exporter.js" type="module"></script>
 </body>

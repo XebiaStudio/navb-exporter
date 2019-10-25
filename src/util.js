@@ -49,3 +49,8 @@ export const downloadFileToDisk = (blob, filename = "navbexport.csv") => {
 
   document.body.removeChild(element);
 };
+
+export const prevent = cb => e => {
+  e.preventDefault();
+  return cb(e);
+};
